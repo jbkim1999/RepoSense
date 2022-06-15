@@ -110,7 +110,12 @@
             .tooltip(v-show="!file.active")
               font-awesome-icon(icon="caret-right", fixed-width)
               span.tooltip-text Click to show file details
-            span {{ i + 1 }}. &nbsp;&nbsp; {{ file.path }} &nbsp;
+            .tooltip(v-show="file.active")
+              span {{ i + 1 }}. &nbsp;&nbsp; {{ file.path }} &nbsp;
+              span.tooltip-text This is the file path. Click to hide file details
+            .tooltip(v-show="!file.active")
+              span {{ i + 1 }}. &nbsp;&nbsp; {{ file.path }} &nbsp;
+              span.tooltip-text This is the file path. Click to show file details
           span.icons
             a(
               v-bind:href="getHistoryLink(file)", target="_blank"
@@ -535,20 +540,18 @@ export default {
       window.encodeHash();
     },
 
-    updateSelectedFiles(setIsLoaded = false) {
-      this.$store.commit('incrementLoadingOverlayCount', 1);
-      setTimeout(() => {
-        this.selectedFiles = this.files.filter(
-            (file) => ((this.selectedFileTypes.includes(file.fileType) && !file.isBinary && !file.isIgnored)
-            || (file.isBinary && this.isBinaryFilesChecked) || (file.isIgnored && this.isIgnoredFilesChecked))
-            && minimatch(file.path, this.searchBarValue || '*', { matchBase: true, dot: true }),
-        )
-            .sort(this.sortingFunction);
-        if (setIsLoaded) {
-          this.isLoaded = true;
-        }
-        this.$store.commit('incrementLoadingOverlayCount', -1);
-      });
+    async updateSelectedFiles(setIsLoaded = false) {
+      await this.$store.dispatch('incrementLoadingOverlayCountForceReload', 1);
+      this.selectedFiles = this.files.filter(
+          (file) => ((this.selectedFileTypes.includes(file.fileType) && !file.isBinary && !file.isIgnored)
+          || (file.isBinary && this.isBinaryFilesChecked) || (file.isIgnored && this.isIgnoredFilesChecked))
+          && minimatch(file.path, this.searchBarValue || '*', { matchBase: true, dot: true }),
+      )
+          .sort(this.sortingFunction);
+      if (setIsLoaded) {
+        this.isLoaded = true;
+      }
+      this.$store.commit('incrementLoadingOverlayCount', -1);
     },
 
     indicateSearchBar() {
