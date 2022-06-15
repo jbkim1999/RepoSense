@@ -1070,6 +1070,10 @@ export default {
     color: mui-color('white');
   }
 
+  .active-name {
+    color: mui-color('green');
+  }
+
   .active-background {
     background-color: mui-color('yellow', '200');
   }
