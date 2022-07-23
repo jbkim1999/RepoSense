@@ -74,7 +74,14 @@
             span.tooltip-text Click to view breakdown of commits
       .summary-chart__title--percentile(
           v-if="sortGroupSelection.includes('totalCommits')"
-        ) {{ getPercentile(i) }} %
+        ) {{ getPercentile(i) }} %&nbsp
+        font-awesome-icon.icon-button(:icon="['fas', 'circle-question']", @click="whichModalOpened = i + 1")
+        Teleport(to="body")
+          v-modal(
+            :show="whichModalOpened === i + 1 && filterGroupSelection !== 'groupByNone'",
+            @close="whichModalOpened = 0",
+            :percentile="getPercentile(i)",
+            :sort-group-selection = "sortGroupSelection")
     .summary-charts__fileType--breakdown(v-if="filterBreakdown")
       template(v-if="filterGroupSelection !== 'groupByNone'")
         .summary-charts__fileType--breakdown__legend(
@@ -135,7 +142,14 @@
             span.tooltip-text Click to view breakdown of commits
         .summary-chart__title--percentile(
           v-if="filterGroupSelection === 'groupByNone' && sortGroupSelection.includes('totalCommits')"
-        ) {{ getPercentile(j) }} %
+        ) {{ getPercentile(j) }} %&nbsp
+          font-awesome-icon.icon-button(:icon="['fas', 'circle-question']", @click="whichModalOpened = j + 1")
+          Teleport(to="body")
+            v-modal(
+              :show="whichModalOpened === j + 1 && filterGroupSelection === 'groupByNone'",
+              @close="whichModalOpened = 0",
+              :percentile="getPercentile(j)",
+              :sort-group-selection = "sortGroupSelection")
 
       .summary-chart__ramp(
         v-on:click="openTabZoomSubrange(user, $event, isGroupMerged(getGroupName(repo)))"
@@ -178,12 +192,14 @@
 <script>
 import { mapState } from 'vuex';
 
+import vModal from './v-modal.vue';
 import vRamp from './v-ramp.vue';
 
 export default {
   name: 'v-summary-charts',
   components: {
     vRamp,
+    vModal,
   },
   props: ['checkedFileTypes', 'filtered', 'avgContributionSize', 'filterBreakdown',
       'filterGroupSelection', 'filterTimeFrame', 'filterSinceDate', 'filterUntilDate', 'isMergeGroup',
@@ -195,6 +211,7 @@ export default {
       activeUser: null,
       activeTabType: null,
       isTabOnMergedGroup: false,
+      whichModalOpened: 0,
     };
   },
 
