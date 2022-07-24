@@ -119,7 +119,10 @@
             'color': getFontColor(fileTypeColors[file.fileType])\
             }"
           ) {{ getMarkedFileTypeLabel(file) }}
-          span.path {{ getMarkedPath(file) }} &nbsp;
+          span.path(
+            v-bind:class="this.filesSortType === 'path' ? 'sort-param' : ''") {{ getFilePathOnly(file) }}
+          span.name(
+            v-bind:class="this.filesSortType === 'fileName' ? 'sort-param' : ''")  {{ getFileNameOnly(file) }} &nbsp;
           span.fileTypeLabel(
             v-if="!file.isBinary && !file.isIgnored &&\
                 (this.filesSortType === 'fileName' || this.filesSortType === 'path')",
@@ -592,6 +595,16 @@ export default {
         this.totalLineCount - this.totalBlankLineCount}`;
     },
 
+    getFilePathOnly(file) {
+      const fileSplitIndex = file.path.lastIndexOf('/');
+      return file.path.slice(0, fileSplitIndex + 1);
+    },
+
+    getFileNameOnly(file) {
+      const fileSplitIndex = file.path.lastIndexOf('/');
+      return file.path.slice(fileSplitIndex + 1);
+    },
+
     getMarkedPath(file) {
       const fileSplitIndex = file.path.lastIndexOf('/');
       const filePathOnly = file.path.slice(0, fileSplitIndex + 1);
@@ -816,7 +829,7 @@ export default {
       border: 1px solid mui-color('github', 'border');
       border-radius: 4px 4px 0 0;
       font-size: medium;
-      font-weight: bold;
+      //font-weight: bold;
       margin-top: 1rem;
       padding: .3em .5em;
 
@@ -838,6 +851,10 @@ export default {
       .icons {
         margin-right: 8px;
         vertical-align: middle;
+      }
+
+      .sort-param {
+        font-weight: bold;
       }
     }
 
